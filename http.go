@@ -16,8 +16,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/decred/dcrd/wire"
-	"github.com/decred/dcrseeder/api"
+	"github.com/EXCCoin/exccd/wire"
+	"github.com/EXCCoin/exccseeder/api"
 )
 
 const defaultHTTPTimeout = 10 * time.Second

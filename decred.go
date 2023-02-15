@@ -17,9 +17,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/decred/dcrd/chaincfg/v3"
-	"github.com/decred/dcrd/peer/v3"
-	"github.com/decred/dcrd/wire"
+	"github.com/EXCCoin/exccd/chaincfg/v3"
+	"github.com/EXCCoin/exccd/peer/v3"
+	"github.com/EXCCoin/exccd/wire"
 )
 
 const (

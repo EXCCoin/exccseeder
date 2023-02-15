@@ -14,8 +14,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/decred/dcrd/wire"
-	"github.com/decred/dcrseeder/api"
+	"github.com/EXCCoin/exccd/wire"
+	"github.com/EXCCoin/exccseeder/api"
 )
 
 // Node represents a single node on the Decred network. This struct is json

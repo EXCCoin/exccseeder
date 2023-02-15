@@ -1,5 +1,6 @@
 *.exe
 dcrseeder
+exccseeder
 vendor/
 
 # Testing, profiling, and benchmarking artifacts

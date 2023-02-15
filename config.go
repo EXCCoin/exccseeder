@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/decred/dcrd/chaincfg/v3"
-	"github.com/decred/dcrd/dcrutil/v4"
+	"github.com/EXCCoin/exccd/chaincfg/v3"
+	"github.com/EXCCoin/exccd/dcrutil/v4"
 	flags "github.com/jessevdk/go-flags"
 )
 
