@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	appName               = "dcrseeder"
+	appName               = "exccseeder"
 	defaultConfigFilename = appName + ".conf"
 	defaultHTTPPort       = "8000"
 )
@@ -29,7 +29,7 @@ var (
 	defaultHomeDir    = dcrutil.AppDataDir(appName, false)
 )
 
-// config defines the configuration options for dcrseeder.
+// config defines the configuration options for exccseeder.
 //
 // See loadConfig for details on the configuration load process.
 type config struct {
