@@ -33,6 +33,7 @@ type Node struct {
 type Manager struct {
 	mtx sync.RWMutex
 
+	staleTime time.Duration
 	nodes     map[string]*Node
 	wg        sync.WaitGroup
 	quit      chan struct{}
@@ -42,10 +43,6 @@ type Manager struct {
 const (
 	// defaultMaxAddresses is the maximum number of addresses to return.
 	defaultMaxAddresses = 16
-
-	// defaultStaleTimeout is the time in which a host is considered
-	// stale.
-	defaultStaleTimeout = time.Hour
 
 	// dumpAddressInterval is the interval used to dump the address
 	// cache to disk for future use.
@@ -63,13 +60,14 @@ const (
 	pruneExpireTimeout = time.Hour * 24
 )
 
-func NewManager(dataDir string) (*Manager, error) {
+func NewManager(dataDir string, staleTime time.Duration) (*Manager, error) {
 	err := os.MkdirAll(dataDir, 0o700)
 	if err != nil {
 		return nil, err
 	}
 
 	amgr := Manager{
+		staleTime: staleTime,
 		nodes:     make(map[string]*Node),
 		peersFile: filepath.Join(dataDir, peersFilename),
 		quit:      make(chan struct{}),
@@ -144,8 +142,8 @@ func (m *Manager) Addresses() []netip.AddrPort {
 		if i == 0 {
 			break
 		}
-		if now.Sub(node.LastSuccess) < defaultStaleTimeout ||
-			now.Sub(node.LastAttempt) < defaultStaleTimeout {
+		if now.Sub(node.LastSuccess) < m.staleTime ||
+			now.Sub(node.LastAttempt) < m.staleTime {
 			continue
 		}
 		addrs = append(addrs, node.IP)
@@ -169,13 +167,13 @@ func (m *Manager) GoodAddresses(ipversion, pver uint32, services wire.ServiceFla
 
 		// Skip nodes that aren't known to be be stable yet.
 		if node.FirstSuccess.IsZero() ||
-			now.Sub(node.FirstSuccess) < defaultStaleTimeout {
+			now.Sub(node.FirstSuccess) < m.staleTime {
 			continue
 		}
 
 		// Skip nodes that do not seem to be online.
 		if node.LastSuccess.IsZero() ||
-			now.Sub(node.LastSuccess) >= defaultStaleTimeout {
+			now.Sub(node.LastSuccess) >= m.staleTime {
 			continue
 		}
 

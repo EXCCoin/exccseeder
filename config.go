@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/EXCCoin/exccd/chaincfg/v3"
 	"github.com/EXCCoin/exccd/dcrutil/v4"
@@ -25,17 +26,19 @@ const (
 
 var (
 	// Default configuration options
-	defaultConfigFile = filepath.Join(defaultHomeDir, defaultConfigFilename)
-	defaultHomeDir    = dcrutil.AppDataDir(appName, false)
+	defaultConfigFile   = filepath.Join(defaultHomeDir, defaultConfigFilename)
+	defaultHomeDir      = dcrutil.AppDataDir(appName, false)
+	defaultStaleTimeout = time.Hour
 )
 
 // config defines the configuration options for exccseeder.
 //
 // See loadConfig for details on the configuration load process.
 type config struct {
-	Listen    string `long:"httplisten" description:"HTTP listen on address:port"`
-	Seeder    string `short:"s" description:"IP address of a working node"`
-	TestNet   bool   `long:"testnet" description:"Use testnet"`
+	Listen    string        `long:"httplisten" description:"HTTP listen on address:port"`
+	Seeder    string        `short:"s" description:"IP address of a working node"`
+	TestNet   bool          `long:"testnet" description:"Use testnet"`
+	StaleTime time.Duration `long:"staletime" description:"Time in which a host is considered stale (default 1h)"`
 	netParams *chaincfg.Params
 }
 
@@ -112,6 +115,10 @@ func loadConfig() (*config, error) {
 		return nil, fmt.Errorf("no seeder specified")
 	}
 	cfg.Seeder = normalizeAddress(cfg.Seeder, cfg.netParams.DefaultPort)
+
+	if cfg.StaleTime == 0 {
+		cfg.StaleTime = defaultStaleTimeout
+	}
 
 	return &cfg, nil
 }

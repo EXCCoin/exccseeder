@@ -145,7 +145,7 @@ func main() {
 	}
 
 	dataDir := filepath.Join(defaultHomeDir, cfg.netParams.Name)
-	amgr, err = NewManager(dataDir)
+	amgr, err = NewManager(dataDir, cfg.StaleTime)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "NewManager: %v\n", err)
 		os.Exit(1)
