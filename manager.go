@@ -60,7 +60,7 @@ const (
 	pruneExpireTimeout = time.Hour * 24
 )
 
-func NewManager(dataDir string, log *log.Logger) (*Manager, error) {
+func NewManager(dataDir string, staleTime time.Duration, log *log.Logger) (*Manager, error) {
 	err := os.MkdirAll(dataDir, 0o700)
 	if err != nil {
 		return nil, err
@@ -70,6 +70,7 @@ func NewManager(dataDir string, log *log.Logger) (*Manager, error) {
 		nodes:     make(map[string]*Node),
 		peersFile: filepath.Join(dataDir, peersFilename),
 		log:       log,
+		staleTime: staleTime,
 	}
 
 	err = amgr.deserializePeers()

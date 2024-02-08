@@ -167,7 +167,7 @@ func run() int {
 	logPrefix := fmt.Sprintf("[%.7s] ", cfg.netParams.Name)
 	log := log.New(os.Stdout, logPrefix, log.LstdFlags|log.Lmsgprefix)
 
-	amgr, err := NewManager(cfg.dataDir, log)
+	amgr, err := NewManager(cfg.dataDir, cfg.StaleTime, log)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "NewManager: %v\n", err)
 		return 1
