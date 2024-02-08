@@ -37,6 +37,7 @@ type Manager struct {
 	staleTime time.Duration
 	nodes     map[string]*Node
 	peersFile string
+	log       *log.Logger
 }
 
 const (
@@ -59,16 +60,16 @@ const (
 	pruneExpireTimeout = time.Hour * 24
 )
 
-func NewManager(dataDir string, staleTime time.Duration) (*Manager, error) {
+func NewManager(dataDir string, log *log.Logger) (*Manager, error) {
 	err := os.MkdirAll(dataDir, 0o700)
 	if err != nil {
 		return nil, err
 	}
 
 	amgr := Manager{
-		staleTime: staleTime,
 		nodes:     make(map[string]*Node),
 		peersFile: filepath.Join(dataDir, peersFilename),
+		log:       log,
 	}
 
 	err = amgr.deserializePeers()
@@ -274,7 +275,7 @@ func (m *Manager) prunePeers() {
 	l := len(m.nodes)
 	m.mtx.Unlock()
 
-	log.Printf("Pruned %d addresses: %d remaining", count, l)
+	m.log.Printf("Pruned %d addresses: %d remaining", count, l)
 }
 
 func (m *Manager) deserializePeers() error {
@@ -302,7 +303,7 @@ func (m *Manager) deserializePeers() error {
 	m.nodes = nodes
 	m.mtx.Unlock()
 
-	log.Printf("%d nodes loaded from %s", l, filePath)
+	m.log.Printf("%d nodes loaded from %s", l, filePath)
 	return nil
 }
 
@@ -314,23 +315,23 @@ func (m *Manager) savePeers() {
 	tmpfile := m.peersFile + ".new"
 	w, err := os.Create(tmpfile)
 	if err != nil {
-		log.Printf("Error opening file %s: %v", tmpfile, err)
+		m.log.Printf("Error opening file %s: %v", tmpfile, err)
 		return
 	}
 	enc := json.NewEncoder(w)
 	if err := enc.Encode(&m.nodes); err != nil {
 		w.Close()
-		log.Printf("Failed to encode file %s: %v", tmpfile, err)
+		m.log.Printf("Failed to encode file %s: %v", tmpfile, err)
 		return
 	}
 	if err := w.Close(); err != nil {
-		log.Printf("Error closing file %s: %v", tmpfile, err)
+		m.log.Printf("Error closing file %s: %v", tmpfile, err)
 		return
 	}
 	if err := os.Rename(tmpfile, m.peersFile); err != nil {
-		log.Printf("Error writing file %s: %v", m.peersFile, err)
+		m.log.Printf("Error writing file %s: %v", m.peersFile, err)
 		return
 	}
 
-	log.Printf("%d nodes saved to %s", len(m.nodes), m.peersFile)
+	m.log.Printf("%d nodes saved to %s", len(m.nodes), m.peersFile)
 }
