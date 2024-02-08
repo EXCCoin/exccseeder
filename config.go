@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2021 The Decred developers
+// Copyright (c) 2018-2023 The Decred developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"strings"
@@ -40,6 +41,8 @@ type config struct {
 	TestNet   bool          `long:"testnet" description:"Use testnet"`
 	StaleTime time.Duration `long:"staletime" description:"Time in which a host is considered stale (default 1h)"`
 	netParams *chaincfg.Params
+	seederIP  netip.AddrPort
+	dataDir   string
 }
 
 func loadConfig() (*config, error) {
@@ -106,6 +109,8 @@ func loadConfig() (*config, error) {
 		cfg.netParams = chaincfg.MainNetParams()
 	}
 
+	cfg.dataDir = filepath.Join(defaultHomeDir, cfg.netParams.Name)
+
 	if cfg.Listen == "" {
 		return nil, fmt.Errorf("no listeners specified")
 	}
@@ -118,6 +123,11 @@ func loadConfig() (*config, error) {
 
 	if cfg.StaleTime == 0 {
 		cfg.StaleTime = defaultStaleTimeout
+	}
+
+	cfg.seederIP, err = netip.ParseAddrPort(cfg.Seeder)
+	if err != nil {
+		return nil, fmt.Errorf("invalid seeder ip: %v", err)
 	}
 
 	return &cfg, nil
