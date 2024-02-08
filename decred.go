@@ -191,7 +191,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if err := serveHTTP(ctx, cfg.Listen); err != nil {
+		if err := serveHTTP(ctx, cfg.Listen, amgr); err != nil {
 			log.Fatal(err)
 		}
 		log.Print("HTTP server done.")
